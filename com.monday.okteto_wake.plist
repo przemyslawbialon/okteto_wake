@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.monday.okteto_wake</string>
+
+    <!-- Run script everyday at 8:00 -->
+    <key>StartCalendarInterval</key>
+    <array>
+      <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>1</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>2</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>3</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>4</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>5</integer>
+      </dict>
+    </array>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/local/bin/okteto</string>
+      <string>namespace</string>
+      <string>wake</string>
+    </array>
+
+    <!-- Settings -->
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <dict>
+      <key>AfterIdle</key>
+      <integer>60</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/pbialon/.logs/okteto_wake.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/pbialon/.logs/okteto_wake_error.log</string>
+  </dict>
+</plist>
