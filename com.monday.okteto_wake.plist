@@ -59,15 +59,10 @@
 
     <!-- Settings -->
     <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
-    <dict>
-      <key>AfterIdle</key>
-      <integer>60</integer>
-    </dict>
+    <false/>
     <key>StandardOutPath</key>
-    <string>/Users/pbialon/.logs/okteto_wake.log</string>
+    <string>${HOME}/.logs/okteto_wake.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/pbialon/.logs/okteto_wake_error.log</string>
+    <string>${HOME}/.logs/okteto_wake_error.log</string>
   </dict>
 </plist>
