@@ -30,4 +30,3 @@ test:
 	@sudo launchctl kickstart -k gui/$(UID)/$(SCRIPT_NAME)
 	@echo "Kicked start LaunchAgent"
 	@./check_status.sh $(SCRIPT_NAME)
-	@echo "Script test completed"
