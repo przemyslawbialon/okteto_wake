@@ -25,13 +25,21 @@ This will:
 - Create necessary directories (`~/Library/LaunchAgents` and `~/.logs`)
 - Install the LaunchAgent with proper home directory path substitution
 - Enable it to run on schedule
+- Verify the installation status
 
-The Makefile automatically:
+## Status Check
 
-- Detects your home directory path
-- Creates required directories
-- Replaces template variables in the plist file with actual paths
-- Installs and enables the LaunchAgent
+You can check the LaunchAgent status at any time using:
+
+```bash
+make status
+```
+
+The status check will show:
+
+- ✓ Green checkmark if the LaunchAgent is running correctly
+- ✗ Red X with error details if there's an issue
+- ! Red exclamation mark if the LaunchAgent is not running
 
 ## Uninstallation
 
@@ -51,8 +59,25 @@ The LaunchAgent is configured to:
 
 ## Technical Details
 
-The Makefile uses environment variables and path substitution to ensure proper installation:
+The project uses several components to ensure proper operation:
 
+### Makefile
+
+- Uses environment variables and path substitution for installation
 - `HOME_DIR` - automatically detected user's home directory
 - Template variables in plist file (like `${HOME}`) are automatically replaced with actual paths during deployment
 - All paths are made absolute during installation to ensure LaunchAgent works correctly
+
+### Status Check Script
+
+- Located in `check_status.sh`
+- Provides detailed status information with color-coded output
+- Can be run independently or through `make status`
+- Shows detailed error messages when issues occur
+
+### Logs
+
+All agent activities are logged to:
+
+- Standard output: `~/.logs/okteto_wake.log`
+- Error output: `~/.logs/okteto_wake_error.log`

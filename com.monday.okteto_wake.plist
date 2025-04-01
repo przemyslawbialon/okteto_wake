@@ -63,6 +63,6 @@
     <key>StandardOutPath</key>
     <string>${HOME}/.logs/okteto_wake.log</string>
     <key>StandardErrorPath</key>
-    <string>${HOME}/.logs/okteto_wake_error.log</string>
+    <string>${HOME}/.logs/okteto_wake.error</string>
   </dict>
 </plist>
