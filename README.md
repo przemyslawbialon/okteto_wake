@@ -89,7 +89,7 @@ The project uses several components to ensure proper operation:
 
 ### Status Check Scripts
 
-- `check_status.sh` - Provides detailed LaunchAgent status information with color-coded output
+- `check_plist_status.sh` - Provides plist script status information
 - `check_okteto_status.sh` - Shows the status of your active Okteto namespace
 - Both scripts can be run independently or through make commands
 - Show detailed error messages when issues occur
