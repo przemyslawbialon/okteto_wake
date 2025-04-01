@@ -47,9 +47,22 @@ The status check will show:
 - ✗ Red X with error details if there's an issue
 - ! Red exclamation mark if the LaunchAgent is not running
 
+You can also check the status of your active Okteto namespace using:
+
+```bash
+make check_okteto
+```
+
+This will show:
+
+- ✓ Green checkmark if the namespace is Active
+- ! Red exclamation mark with current status if the namespace is not Active
+- Error message if no active namespace is found
+
 ## Uninstallation
 
 To remove the LaunchAgent:
+
 ```bash
 make undeploy
 ```
@@ -74,12 +87,12 @@ The project uses several components to ensure proper operation:
 - Template variables in plist file (like `${HOME}`) are automatically replaced with actual paths during deployment
 - All paths are made absolute during installation to ensure LaunchAgent works correctly
 
-### Status Check Script
+### Status Check Scripts
 
-- Located in `check_status.sh`
-- Provides detailed status information with color-coded output
-- Can be run independently or through `make status`
-- Shows detailed error messages when issues occur
+- `check_status.sh` - Provides detailed LaunchAgent status information with color-coded output
+- `check_okteto_status.sh` - Shows the status of your active Okteto namespace
+- Both scripts can be run independently or through make commands
+- Show detailed error messages when issues occur
 
 ### Logs
 

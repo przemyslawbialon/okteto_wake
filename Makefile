@@ -6,7 +6,7 @@ PLIST_SOURCE=$(SCRIPT_NAME).plist
 PLIST_DEST=$(HOME_DIR)/Library/LaunchAgents/$(PLIST_SOURCE)
 
 
-.PHONY: deploy undeploy
+.PHONY: deploy undeploy test okteto_status check_okteto
 
 deploy:
 	@echo "Deploying LaunchAgent..."
@@ -29,4 +29,7 @@ test:
 	@echo "Kicking start LaunchAgent"
 	@sudo launchctl kickstart -k gui/$(UID)/$(SCRIPT_NAME)
 	@echo "Kicked start LaunchAgent"
-	@./check_status.sh $(SCRIPT_NAME)
+	@./check_plist_status.sh $(SCRIPT_NAME)
+
+check_okteto:
+	@./check_okteto_status.sh 
