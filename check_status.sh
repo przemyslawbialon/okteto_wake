@@ -14,6 +14,8 @@ exit_code=$(launchctl print gui/$USER_ID/$SCRIPT_NAME 2>/dev/null | grep "last e
 
 if [ "$exit_code" = "0" ]; then
     echo -e "${GREEN}${BOLD}✓ LaunchAgent status: OK (exit code: 0)${NC}"
+elif [ "$exit_code" = "(never run)" ]; then
+    echo -e "${RED}${BOLD}! LaunchAgent status: Never run${NC}"
 elif [ -n "$exit_code" ]; then
     echo -e "${RED}${BOLD}✗ LaunchAgent failed with exit code: $exit_code${NC}"
     error_msg=$(launchctl error "$exit_code" 2>&1)

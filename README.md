@@ -32,8 +32,14 @@ This will:
 You can check the LaunchAgent status at any time using:
 
 ```bash
-make status
+make test
 ```
+
+This will:
+
+- Kickstart the LaunchAgent
+- Check its current status
+- Show detailed information about the agent's state
 
 The status check will show:
 
