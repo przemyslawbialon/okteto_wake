@@ -5,46 +5,46 @@
     <key>Label</key>
     <string>com.monday.okteto_wake</string>
 
-    <!-- Run script everyday at 8:00 -->
+    <!-- Run script everyday at ${HOUR}:${MINUTE} -->
     <key>StartCalendarInterval</key>
     <array>
       <dict>
         <key>Hour</key>
-        <integer>8</integer>
+        <integer>${HOUR}</integer>
         <key>Minute</key>
-        <integer>0</integer>
+        <integer>${MINUTE}</integer>
         <key>Weekday</key>
         <integer>1</integer>
       </dict>
       <dict>
         <key>Hour</key>
-        <integer>8</integer>
+        <integer>${HOUR}</integer>
         <key>Minute</key>
-        <integer>0</integer>
+        <integer>${MINUTE}</integer>
         <key>Weekday</key>
         <integer>2</integer>
       </dict>
       <dict>
         <key>Hour</key>
-        <integer>8</integer>
+        <integer>${HOUR}</integer>
         <key>Minute</key>
-        <integer>0</integer>
+        <integer>${MINUTE}</integer>
         <key>Weekday</key>
         <integer>3</integer>
       </dict>
       <dict>
         <key>Hour</key>
-        <integer>8</integer>
+        <integer>${HOUR}</integer>
         <key>Minute</key>
-        <integer>0</integer>
+        <integer>${MINUTE}</integer>
         <key>Weekday</key>
         <integer>4</integer>
       </dict>
       <dict>
         <key>Hour</key>
-        <integer>8</integer>
+        <integer>${HOUR}</integer>
         <key>Minute</key>
-        <integer>0</integer>
+        <integer>${MINUTE}</integer>
         <key>Weekday</key>
         <integer>5</integer>
       </dict>

@@ -1,10 +1,10 @@
 # Okteto Wake LaunchAgent
 
-A macOS LaunchAgent that automatically wakes up Okteto namespace every workday at 8:00 AM.
+A macOS LaunchAgent that automatically wakes up Okteto namespace every workday at a configurable time (default: 8:00 AM).
 
 ## Purpose
 
-This LaunchAgent automates the process of waking up your Okteto namespace, ensuring it's ready for work when you start your day. It runs `okteto namespace wake` command every Monday through Friday at 8:00 AM.
+This LaunchAgent automates the process of waking up your Okteto namespace, ensuring it's ready for work when you start your day. It runs `okteto namespace wake` command every Monday through Friday at a configurable time.
 
 ## Requirements
 
@@ -20,12 +20,23 @@ This LaunchAgent automates the process of waking up your Okteto namespace, ensur
 make deploy
 ```
 
+Or with custom schedule:
+
+```bash
+make deploy HOUR=9 MINUTE=30
+```
+
 This will:
 
 - Create necessary directories (`~/Library/LaunchAgents` and `~/.logs`)
 - Install the LaunchAgent with proper home directory path substitution
+- Replace template variables (hour, minute, home directory) with actual values
 - Enable it to run on schedule
-- Verify the installation status
+- Display the configured schedule during deployment
+
+**Parameters:**
+- `HOUR` - Hour of the day (0-23), default: `8`
+- `MINUTE` - Minute (0-59), default: `0`
 
 ## Status Check
 
@@ -71,10 +82,26 @@ make undeploy
 
 The LaunchAgent is configured to:
 
-- Run at 8:00 AM on weekdays (Monday-Friday)
+- Run at a configurable time on weekdays (Monday-Friday), default: 8:00 AM
 - Log output to `~/.logs/okteto_wake.log`
 - Log errors to `~/.logs/okteto_wake_error.log`
 - Not run immediately after loading (can be changed by setting `RunAtLoad` to `true` in the plist file)
+
+### Custom Schedule
+
+You can customize the wake-up time by passing `HOUR` and `MINUTE` parameters to the `deploy` command:
+
+```bash
+make deploy HOUR=9 MINUTE=30
+```
+
+Examples:
+- `make deploy` - Uses default 8:00 AM
+- `make deploy HOUR=7` - Sets to 7:00 AM
+- `make deploy HOUR=9 MINUTE=15` - Sets to 9:15 AM
+- `make deploy HOUR=0 MINUTE=0` - Sets to midnight
+
+To change the schedule after initial deployment, run `make undeploy` first, then `make deploy` with new parameters.
 
 ## Technical Details
 
@@ -84,8 +111,11 @@ The project uses several components to ensure proper operation:
 
 - Uses environment variables and path substitution for installation
 - `HOME_DIR` - automatically detected user's home directory
-- Template variables in plist file (like `${HOME}`) are automatically replaced with actual paths during deployment
+- `HOUR` - configurable hour (0-23), default: `8`
+- `MINUTE` - configurable minute (0-59), default: `0`
+- Template variables in plist file (like `${HOME}`, `${HOUR}`, `${MINUTE}`) are automatically replaced with actual values during deployment
 - All paths are made absolute during installation to ensure LaunchAgent works correctly
+- Schedule parameters can be passed via command line: `make deploy HOUR=9 MINUTE=30`
 
 ### Status Check Scripts
 
