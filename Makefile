@@ -47,5 +47,5 @@ test:
 	@echo "Kicked start LaunchAgent"
 	@./check_plist_status.sh $(SCRIPT_NAME)
 
-check_okteto:
+check:
 	@./check_okteto_status.sh 

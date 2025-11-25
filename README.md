@@ -68,7 +68,7 @@ The status check will show:
 You can also check the status of your active Okteto namespace using:
 
 ```bash
-make check_okteto
+make check
 ```
 
 This will show:
