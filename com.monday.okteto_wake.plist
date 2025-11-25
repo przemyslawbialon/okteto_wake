@@ -46,7 +46,7 @@
         <key>Minute</key>
         <integer>${MINUTE}</integer>
         <key>Weekday</key>
-        <integer>5</integer>
+        <integer>${LAST_WEEKDAY}</integer>
       </dict>
     </array>
 

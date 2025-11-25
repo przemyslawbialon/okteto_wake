@@ -4,7 +4,7 @@ A macOS LaunchAgent that automatically wakes up Okteto namespace every workday a
 
 ## Purpose
 
-This LaunchAgent automates the process of waking up your Okteto namespace, ensuring it's ready for work when you start your day. It runs `okteto namespace wake` command every Monday through Friday at a configurable time.
+This LaunchAgent automates the process of waking up your Okteto namespace, ensuring it's ready for work when you start your day. It runs `okteto namespace wake` command every workday at a configurable time. By default, it runs Monday through Friday, but can be configured for Sunday through Thursday (Israeli workweek).
 
 ## Requirements
 
@@ -26,17 +26,24 @@ Or with custom schedule:
 make deploy HOUR=9 MINUTE=30
 ```
 
+Or for Israeli workweek (Sunday-Thursday):
+
+```bash
+make deploy ISRAEL=true
+```
+
 This will:
 
 - Create necessary directories (`~/Library/LaunchAgents` and `~/.logs`)
 - Install the LaunchAgent with proper home directory path substitution
-- Replace template variables (hour, minute, home directory) with actual values
+- Replace template variables (hour, minute, last weekday, home directory) with actual values
 - Enable it to run on schedule
 - Display the configured schedule during deployment
 
 **Parameters:**
 - `HOUR` - Hour of the day (0-23), default: `8`
 - `MINUTE` - Minute (0-59), default: `0`
+- `ISRAEL` - Set to `true` for Israeli workweek (Sunday-Thursday), default: `false` (Monday-Friday)
 
 ## Status Check
 
@@ -82,7 +89,7 @@ make undeploy
 
 The LaunchAgent is configured to:
 
-- Run at a configurable time on weekdays (Monday-Friday), default: 8:00 AM
+- Run at a configurable time on weekdays, default: Monday-Friday at 8:00 AM
 - Log output to `~/.logs/okteto_wake.log`
 - Log errors to `~/.logs/okteto_wake_error.log`
 - Not run immediately after loading (can be changed by setting `RunAtLoad` to `true` in the plist file)
@@ -96,12 +103,33 @@ make deploy HOUR=9 MINUTE=30
 ```
 
 Examples:
-- `make deploy` - Uses default 8:00 AM
-- `make deploy HOUR=7` - Sets to 7:00 AM
-- `make deploy HOUR=9 MINUTE=15` - Sets to 9:15 AM
-- `make deploy HOUR=0 MINUTE=0` - Sets to midnight
+- `make deploy` - Uses default 8:00 AM (Monday-Friday)
+- `make deploy HOUR=7` - Sets to 7:00 AM (Monday-Friday)
+- `make deploy HOUR=9 MINUTE=15` - Sets to 9:15 AM (Monday-Friday)
+- `make deploy HOUR=0 MINUTE=0` - Sets to midnight (Monday-Friday)
 
 To change the schedule after initial deployment, run `make undeploy` first, then `make deploy` with new parameters.
+
+### Israeli Workweek
+
+For users in Israel (or other regions with Sunday-Thursday workweek), you can configure the LaunchAgent to run Sunday through Thursday instead of Monday through Friday. This simply replaces Friday (5) with Sunday (0), keeping Monday-Thursday unchanged:
+
+```bash
+make deploy ISRAEL=true
+```
+
+You can combine this with custom time:
+
+```bash
+make deploy ISRAEL=true HOUR=9 MINUTE=30
+```
+
+Examples:
+- `make deploy ISRAEL=true` - Sunday-Thursday at 8:00 AM (default time)
+- `make deploy ISRAEL=true HOUR=7` - Sunday-Thursday at 7:00 AM
+- `make deploy ISRAEL=true HOUR=9 MINUTE=15` - Sunday-Thursday at 9:15 AM
+
+**Note:** The `ISRAEL` parameter replaces Friday with Sunday, keeping Monday-Thursday unchanged. You still need to set `HOUR` and `MINUTE` if you want a different time than the default 8:00 AM.
 
 ## Technical Details
 
@@ -113,9 +141,11 @@ The project uses several components to ensure proper operation:
 - `HOME_DIR` - automatically detected user's home directory
 - `HOUR` - configurable hour (0-23), default: `8`
 - `MINUTE` - configurable minute (0-59), default: `0`
-- Template variables in plist file (like `${HOME}`, `${HOUR}`, `${MINUTE}`) are automatically replaced with actual values during deployment
+- `ISRAEL` - set to `true` for Israeli workweek (Sunday-Thursday), default: `false` (Monday-Friday)
+- Template variables in plist file (like `${HOME}`, `${HOUR}`, `${MINUTE}`, `${LAST_WEEKDAY}`) are automatically replaced with actual values during deployment
+- When `ISRAEL=true`, only the last weekday (Friday → Sunday) is changed, keeping Monday-Thursday unchanged
 - All paths are made absolute during installation to ensure LaunchAgent works correctly
-- Schedule parameters can be passed via command line: `make deploy HOUR=9 MINUTE=30`
+- Schedule parameters can be passed via command line: `make deploy HOUR=9 MINUTE=30` or `make deploy ISRAEL=true`
 
 ### Status Check Scripts
 
