@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Okteto Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2338bdf8'/><stop offset='100%25' stop-color='%23818cf8'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='%230f172a'/><circle cx='50' cy='50' r='20' fill='none' stroke='url(%23g)' stroke-width='6'/><circle cx='50' cy='50' r='8' fill='%2322c55e'/></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><circle cx='50' cy='50' r='20' fill='none' stroke='%2338bdf8' stroke-width='6'/><circle cx='50' cy='50' r='8' fill='%2322c55e'/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: 
+        radial-gradient(ellipse 100% 80% at 20% 0%, rgba(190, 60, 100, 0.4), transparent 50%),
+        radial-gradient(ellipse 80% 60% at 90% 100%, rgba(30, 100, 160, 0.35), transparent 50%),
+        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(80, 40, 120, 0.25), transparent),
+        linear-gradient(135deg, #1a0a1a 0%, #0a0a12 40%, #0a1018 100%);
+      overflow: hidden;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%);
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.12;
+      transition: all 1s ease;
+      pointer-events: none;
+    }
+
+    .bg-glow.primary {
+      top: -300px;
+      left: -200px;
+      background: #6366f1;
+    }
+
+    .bg-glow.secondary {
+      bottom: -400px;
+      right: -300px;
+      background: #06b6d4;
+      opacity: 0.08;
+    }
+
+    .container {
+      display: flex;
+      gap: 38px;
+      align-items: stretch;
+    }
+
+    .card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(20,20,30,0.8) 0%, rgba(10,10,15,0.9) 100%);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 38px;
+      padding: 51px 64px;
+      backdrop-filter: blur(20px);
+      min-width: 400px;
+      text-align: center;
+      box-shadow: 
+        0 6px 38px -2px rgba(0,0,0,0.5),
+        inset 0 2px 0 rgba(255,255,255,0.05);
+      transition: border-color 0.5s ease;
+    }
+
+    .card.ok {
+      --status-color: #10b981;
+    }
+
+    .card.error {
+      --status-color: #ef4444;
+    }
+
+    .card.checking {
+      --status-color: #6366f1;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 38px;
+      padding: 2px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, transparent 100%);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .service-label {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2.4px;
+      margin-bottom: 13px;
+    }
+
+    .service-label.monday {
+      background: linear-gradient(135deg, #f472b6, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .service-label.webpack {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      letter-spacing: 0.4px;
+      margin-bottom: 38px;
+      padding: 10px 19px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    .url.monday {
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.15), rgba(251, 146, 60, 0.15));
+      border: 1px solid rgba(244, 114, 182, 0.3);
+      color: #f9a8d4;
+    }
+
+    .url.webpack {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.15));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #7dd3fc;
+    }
+
+    .status-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 19px;
+      margin-bottom: 38px;
+    }
+
+    .pulse-ring {
+      position: relative;
+      width: 26px;
+      height: 26px;
+    }
+
+    .pulse-ring .dot {
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      background: var(--status-color, #6366f1);
+      box-shadow: 0 0 24px var(--status-color, #6366f1);
+      transition: all 0.5s ease;
+    }
+
+    .pulse-ring .ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid var(--status-color, #6366f1);
+      opacity: 0;
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    .card.error .pulse-ring .ring {
+      animation-duration: 1s;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    .status-text {
+      font-size: 64px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      color: var(--status-color, #6366f1);
+      text-shadow: 0 0 64px var(--status-color, #6366f1);
+      transition: all 0.5s ease;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 26px;
+      border-radius: 100px;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      transition: all 0.3s ease;
+    }
+
+    .card.ok .status-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      color: #10b981;
+    }
+
+    .card.ok .status-badge svg {
+      opacity: 0.8;
+    }
+
+    .card.error .status-badge {
+      background: rgba(239, 68, 68, 0.1);
+      border: 2px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .card.error .status-badge svg {
+      opacity: 0.8;
+    }
+
+    .card.checking .status-badge {
+      background: rgba(99, 102, 241, 0.1);
+      border: 2px solid rgba(99, 102, 241, 0.3);
+      color: #6366f1;
+    }
+
+    .status-badge svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.5;
+    }
+
+    .divider {
+      width: 64px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      margin: 29px auto;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: center;
+      gap: 26px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-item svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.2));
+      border-color: rgba(239, 68, 68, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #7dd3fc;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(129, 140, 248, 0.3));
+      border-color: rgba(56, 189, 248, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn.loading {
+      pointer-events: none;
+    }
+
+    .btn.loading svg {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+
+    .toast.error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow primary"></div>
+  <div class="bg-glow secondary"></div>
+
+  <div class="container">
+    <div class="card checking" id="mondayCard">
+      <div class="service-label monday">Backend</div>
+      <div class="url monday">monday.llama.fan</div>
+      
+      <div class="status-container">
+        <div class="pulse-ring">
+          <div class="dot"></div>
+          <div class="ring"></div>
+        </div>
+        <div class="status-text" id="mondayStatus">...</div>
+      </div>
+
+      <div class="status-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+        <span id="mondayBadge">Checking...</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="meta">
+        <div class="meta-item">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="mondayTime">--:--:--</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card checking" id="webpackCard">
+      <div class="service-label webpack">Webpack</div>
+      <div class="url webpack">webpack.llama.fan:3444</div>
+      
+      <div class="status-container">
+        <div class="pulse-ring">
+          <div class="dot"></div>
+          <div class="ring"></div>
+        </div>
+        <div class="status-text" id="webpackStatus">...</div>
+      </div>
+
+      <div class="status-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+        <span id="webpackBadge">Checking...</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="meta">
+        <div class="meta-item">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="webpackTime">--:--:--</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-danger" id="btnDeleteModules" onclick="deleteNodeModules()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Delete node_modules
+        </button>
+        <button class="btn btn-primary" id="btnRestartWebpack" onclick="restartWebpack()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Restart Webpack
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = 'http://localhost:3333';
+
+    const services = [
+      {
+        url: "http://monday.llama.fan",
+        card: document.getElementById("mondayCard"),
+        status: document.getElementById("mondayStatus"),
+        badge: document.getElementById("mondayBadge"),
+        time: document.getElementById("mondayTime")
+      },
+      {
+        url: "https://webpack.llama.fan:3444/",
+        card: document.getElementById("webpackCard"),
+        status: document.getElementById("webpackStatus"),
+        badge: document.getElementById("webpackBadge"),
+        time: document.getElementById("webpackTime")
+      }
+    ];
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function setButtonLoading(btn, loading) {
+      if (loading) {
+        btn.classList.add('loading');
+        btn.disabled = true;
+      } else {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteNodeModules() {
+      const btn = document.getElementById('btnDeleteModules');
+      setButtonLoading(btn, true);
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/delete-node-modules`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          showToast('node_modules deleted successfully', 'success');
+        } else {
+          showToast(data.error || 'Failed to delete', 'error');
+        }
+      } catch (e) {
+        showToast('Server not running (localhost:3333)', 'error');
+      }
+      
+      setButtonLoading(btn, false);
+    }
+
+    async function restartWebpack() {
+      const btn = document.getElementById('btnRestartWebpack');
+      setButtonLoading(btn, true);
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/restart-webpack`, { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          showToast('Webpack restart initiated', 'success');
+        } else {
+          showToast(data.error || 'Failed to restart', 'error');
+        }
+      } catch (e) {
+        showToast('Server not running (localhost:3333)', 'error');
+      }
+      
+      setButtonLoading(btn, false);
+    }
+
+    async function checkService(service) {
+      let httpCode = null;
+      let ok = false;
+
+      try {
+        const response = await fetch(service.url, { method: "GET" });
+        httpCode = response.status;
+        ok = httpCode === 200;
+      } catch (e) {
+        ok = false;
+      }
+
+      const now = new Date().toLocaleTimeString();
+      service.time.textContent = now;
+      service.card.classList.remove("ok", "error", "checking");
+
+      if (ok) {
+        service.card.classList.add("ok");
+        service.status.textContent = httpCode;
+        service.badge.textContent = "Operational";
+      } else {
+        service.card.classList.add("error");
+        service.status.textContent = httpCode || "OFF";
+        service.badge.textContent = httpCode ? `HTTP ${httpCode}` : "Offline";
+      }
+    }
+
+    function checkAll() {
+      services.forEach(checkService);
+    }
+
+    checkAll();
+    setInterval(checkAll, 1000);
+  </script>
+</body>
+</html>
+

@@ -17,7 +17,11 @@ else
 endif
 
 
-.PHONY: deploy undeploy test okteto_status check_okteto
+.PHONY: deploy undeploy test okteto_status check_okteto dashboard
+
+dashboard:
+	@echo "Starting Okteto Dashboard on http://localhost:3333"
+	@node server.js
 
 deploy:
 	@echo "Deploying LaunchAgent..."

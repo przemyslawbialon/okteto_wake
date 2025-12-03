@@ -2,6 +2,31 @@
 
 A macOS LaunchAgent that automatically wakes up Okteto namespace every workday at a configurable time (default: 8:00 AM).
 
+## Dashboard
+
+Interactive web dashboard to monitor Okteto services and manage webpack.
+
+### Start Dashboard
+
+```bash
+make dashboard
+```
+
+Then open http://localhost:3333
+
+### Features
+
+- **Real-time status monitoring** for monday.llama.fan and webpack.llama.fan:3444
+- **Delete node_modules** - removes `~/Development/dapulse/node_modules`
+- **Restart Webpack** - kills webpack process and runs `start-webpack`
+
+### Dashboard Screenshot
+
+The dashboard shows:
+- Backend (monday.llama.fan) status
+- Webpack (webpack.llama.fan:3444) status  
+- Action buttons for webpack management
+
 ## Purpose
 
 This LaunchAgent automates the process of waking up your Okteto namespace, ensuring it's ready for work when you start your day. It runs `okteto namespace wake` command every workday at a configurable time. By default, it runs Monday through Friday, but can be configured for Sunday through Thursday (Israeli workweek).
