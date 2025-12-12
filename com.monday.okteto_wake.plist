@@ -52,9 +52,8 @@
 
     <key>ProgramArguments</key>
     <array>
-      <string>/usr/local/bin/okteto</string>
-      <string>namespace</string>
-      <string>wake</string>
+      <string>/bin/bash</string>
+      <string>${INSTALL_PATH}/okteto_wake_with_timestamp.sh</string>
     </array>
 
     <!-- Settings -->

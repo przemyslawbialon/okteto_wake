@@ -7,6 +7,8 @@ ISRAEL ?= false
 SCRIPT_NAME=com.monday.okteto_wake
 PLIST_SOURCE=$(SCRIPT_NAME).plist
 PLIST_DEST=$(HOME_DIR)/Library/LaunchAgents/$(PLIST_SOURCE)
+INSTALL_PATH=$(HOME_DIR)/.okteto_wake
+WAKE_SCRIPT=okteto_wake_with_timestamp.sh
 
 ifeq ($(ISRAEL),true)
 	LAST_WEEKDAY = 0
@@ -28,10 +30,14 @@ deploy:
 	@echo "Schedule: $(HOUR):$(MINUTE) ($(WEEKDAYS_DESC))"
 	@mkdir -p $(HOME_DIR)/Library/LaunchAgents
 	@mkdir -p $(HOME_DIR)/.logs
+	@mkdir -p $(INSTALL_PATH)
+	@cp $(WAKE_SCRIPT) $(INSTALL_PATH)/
+	@chmod +x $(INSTALL_PATH)/$(WAKE_SCRIPT)
 	@sed -e 's|\$${HOME}|$(HOME_DIR)|g' \
 	     -e 's|\$${HOUR}|$(HOUR)|g' \
 	     -e 's|\$${MINUTE}|$(MINUTE)|g' \
 	     -e 's|\$${LAST_WEEKDAY}|$(LAST_WEEKDAY)|g' \
+	     -e 's|\$${INSTALL_PATH}|$(INSTALL_PATH)|g' \
 	     $(PLIST_SOURCE) > $(PLIST_DEST)
 	@sudo launchctl bootout gui/$(UID) $(PLIST_SOURCE) 2>/dev/null || true
 	@sudo launchctl bootstrap gui/$(UID) $(PLIST_DEST)
@@ -43,6 +49,7 @@ undeploy:
 	@sudo launchctl disable gui/$(UID)/$(PLIST_SOURCE) 2>/dev/null || true
 	@sudo launchctl bootout gui/$(UID) $(PLIST_SOURCE) 2>/dev/null || true
 	@rm -f $(PLIST_DEST)
+	@rm -rf $(INSTALL_PATH)
 	@echo "LaunchAgent undeployed successfully!"
 
 test:
