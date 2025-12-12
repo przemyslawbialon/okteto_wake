@@ -1,7 +1,9 @@
 const http = require('http');
+const https = require('https');
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { URL } = require('url');
 
 const PORT = 3333;
 const DAPULSE_PATH = path.join(process.env.HOME, 'Development/dapulse');
@@ -77,6 +79,50 @@ async function getStatus(res) {
   sendJson(res, 200, status);
 }
 
+function proxyHealthCheck(res, targetUrl) {
+  let responseSent = false;
+  const parsedUrl = new URL(targetUrl);
+  const client = parsedUrl.protocol === 'https:' ? https : http;
+  
+  const options = {
+    hostname: parsedUrl.hostname,
+    port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+    path: parsedUrl.pathname || '/',
+    method: 'GET',
+    timeout: 5000,
+    rejectUnauthorized: false
+  };
+
+  const req = client.request(options, (response) => {
+    if (!responseSent) {
+      const isAlive = response.statusCode >= 200 && response.statusCode < 400;
+      sendJson(res, 200, { 
+        ok: isAlive, 
+        status: response.statusCode 
+      });
+      responseSent = true;
+    }
+    response.resume();
+  });
+
+  req.on('error', (e) => {
+    if (!responseSent) {
+      sendJson(res, 200, { ok: false, status: null, error: e.message });
+      responseSent = true;
+    }
+  });
+
+  req.on('timeout', () => {
+    req.destroy();
+    if (!responseSent) {
+      sendJson(res, 200, { ok: false, status: null, error: 'timeout' });
+      responseSent = true;
+    }
+  });
+
+  req.end();
+}
+
 function serveHtml(res) {
   const htmlPath = path.join(__dirname, 'index.html');
   fs.readFile(htmlPath, (err, data) => {
@@ -113,6 +159,14 @@ const server = http.createServer(async (req, res) => {
 
   if (url === '/api/status' && req.method === 'GET') {
     return getStatus(res);
+  }
+
+  if (url === '/api/health/monday' && req.method === 'GET') {
+    return proxyHealthCheck(res, 'http://monday.llama.fan');
+  }
+
+  if (url === '/api/health/webpack' && req.method === 'GET') {
+    return proxyHealthCheck(res, 'https://webpack.llama.fan:3444/');
   }
 
   sendJson(res, 404, { error: 'Not found' });

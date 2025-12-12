@@ -472,14 +472,16 @@
 
     const services = [
       {
-        url: "http://monday.llama.fan",
+        name: "monday",
+        endpoint: `${API_BASE}/api/health/monday`,
         card: document.getElementById("mondayCard"),
         status: document.getElementById("mondayStatus"),
         badge: document.getElementById("mondayBadge"),
         time: document.getElementById("mondayTime")
       },
       {
-        url: "https://webpack.llama.fan:3444/",
+        name: "webpack",
+        endpoint: `${API_BASE}/api/health/webpack`,
         card: document.getElementById("webpackCard"),
         status: document.getElementById("webpackStatus"),
         badge: document.getElementById("webpackBadge"),
@@ -549,9 +551,10 @@
       let ok = false;
 
       try {
-        const response = await fetch(service.url, { method: "GET" });
-        httpCode = response.status;
-        ok = httpCode === 200;
+        const response = await fetch(service.endpoint);
+        const data = await response.json();
+        httpCode = data.status;
+        ok = data.ok;
       } catch (e) {
         ok = false;
       }
@@ -576,7 +579,7 @@
     }
 
     checkAll();
-    setInterval(checkAll, 1000);
+    setInterval(checkAll, 5000);
   </script>
 </body>
 </html>
